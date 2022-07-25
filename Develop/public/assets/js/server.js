@@ -1,7 +1,9 @@
 const express = require('express')
 const path = require('path')
-const uuid = require('./helpers/uuid')
-// const data = require('.../db/db.json')
+const uuid = path.basename('C:\\Users\\Charli\\Desktop\\Notes-Taker\\Develop\\helpers\\uuid.js')
+const data = path.basename('C:\\Users\\Charli\\Desktop\\Notes-Taker\\Develop\\db\\db.json')
+const notesHTML = path.basename('C:\\Users\\Charli\\Desktop\\Notes-Taker\\Develop\\public\\assets\\notes.html')
+const indexHTMl = path.basename('C:\\Users\\Charli\\Desktop\\Notes-Taker\\Develop\\public\\assets\\index.html')
 
 const PORT = 3333
 const app = express()
@@ -10,11 +12,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.get('/notes', (req,res) => {
-    res.sendFile(path.join(__dirname, '../public/notes.html'))
+    res.sendFile(path.join(__dirname, notesHTML))
 })
 
 app.get('*', (req,res) => {
-    res.sendFile(path.join(__dirname, '../public/index.html'))
+    res.sendFile(path.join(__dirname, indexHTMl))
 })
 
 app.get('/api/notes', (req,res) => {
