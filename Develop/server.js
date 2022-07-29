@@ -60,7 +60,7 @@ app.delete('/api/notes/:id', (req, res) => {
 
         fs.readFile('./db/db.json', 'utf8', (err, data) => {
             const parsedData = JSON.parse(data)
-            parsedData.slice(oldNote)
+            parsedData.pop(oldNote)
             const stringifiedData = JSON.stringify(parsedData, null, 4)
             fs.writeFile('./db/db.json', stringifiedData, (writeErr) => writeErr ? console.log(writeErr) : console.log('Deleted'))
         })
