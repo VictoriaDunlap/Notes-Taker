@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const uuid = require('./helpers/uuid')
 const data = require('./db/db.json')
+const fs = require('fs');
 const { readFromFile, writeToFile, readAndAppend } = require('./helpers/fsUtils')
 const { fstat, writeFile } = require('fs')
 
@@ -28,46 +29,52 @@ app.get('/api/notes', (req,res) => {
 
 // create a new note 
 app.post('/api/notes', (req,res) => {
-    const { title, text } = req.body 
-
-    if(title && text) {
+    console.log(req.body )
+ 
+    if(req.body) {
         const newNote = {
-            title,
-            text,
+            title: req.body.title,
+            text: req.body.text,
             note_id: uuid(),
         }
-      const parsedData = JSON.parse(newNote)
-      const readData = fs.readFile(parsedData)
-      const stringifiedData = JSON.stringify(readData, null, 4)
-      fs.writeFile(data,stringifiedData)
+
+        fs.readFile('./db/db.json', 'utf8', (err, data) => {
+            console.log('hello')
+            console.log(data)
+
+            const parsedData = JSON.parse(data)
+            parsedData.push(newNote)
+            const stringifiedData = JSON.stringify(parsedData, null, 4)
+            fs.writeFile('./db/db.json', stringifiedData, (writeErr) => writeErr ? console.log(writeErr) : console.log('Saved'))   
+        })
       
-        const response = {
-            status: 'success',
-            body: newNote,
-        }
-        console.log(response)
-        res.json(response)
+        res.sendFile(path.join(__dirname, './db/db.json'))
     } else {
         res.json('Error in saving note')
     }
 })
 
-app.delete('/api/notes/delete', (req, res) => {
-    console.info(`${req.method} request received to delete note`)
+app.delete('/api/notes', (req, res) => {
+    if(req.body) {
+        const oldNote = {
+            title: req.body.title,
+            text: req.body.text,
+            note_id: uuid(),
+        }
 
-    const { title, text } = req.body 
-    
-    if (title && text) {
-      const note = {
-        title,
-        text,
-        note_id: uuid()
-      }
-    
-      readFromFile(note, data)
+        fs.readFile('./db/db.json', 'utf8', (err, data) => {
+            console.log('hello')
+            console.log(data)
+
+            const parsedData = JSON.parse(data)
+            parsedData.slice(oldNote)
+            const stringifiedData = JSON.stringify(parsedData, null, 4)
+            fs.writeFile('./db/db.json', stringifiedData, (writeErr) => writeErr ? console.log(writeErr) : console.log('Deleted'))
+        })
+
       res.json(`Delete successful`)
     } else {
-      res.error('Error in deleting appointment')
+      res.json('Error in deleting note')
     }
 })
 
