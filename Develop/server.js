@@ -11,26 +11,25 @@ const app = express()
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static('public'))
 
 // return notes from notes.html
 app.get('/notes', (req,res) => {
     res.sendFile(path.join(__dirname, './public/notes.html'))
 })
 
-// return index.html 
-app.get('*', (req,res) => {
-    res.sendFile(path.join(__dirname, './public/index.html'))
-})
-
 // reads the db.json file 
 app.get('/api/notes', (req,res) => {
-    res.json(data)
+    // const tester = JSON.parse('./db/db.json')
+    // console.log(tester)
+    fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        const parsedData1 = JSON.parse(data)
+        res.json(parsedData1)
+    })
 })
 
 // create a new note 
 app.post('/api/notes', (req,res) => {
-    console.log(req.body )
- 
     if(req.body) {
         const newNote = {
             title: req.body.title,
@@ -39,9 +38,6 @@ app.post('/api/notes', (req,res) => {
         }
 
         fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            console.log('hello')
-            console.log(data)
-
             const parsedData = JSON.parse(data)
             parsedData.push(newNote)
             const stringifiedData = JSON.stringify(parsedData, null, 4)
@@ -54,7 +50,7 @@ app.post('/api/notes', (req,res) => {
     }
 })
 
-app.delete('/api/notes', (req, res) => {
+app.delete('/api/notes/:id', (req, res) => {
     if(req.body) {
         const oldNote = {
             title: req.body.title,
@@ -63,9 +59,6 @@ app.delete('/api/notes', (req, res) => {
         }
 
         fs.readFile('./db/db.json', 'utf8', (err, data) => {
-            console.log('hello')
-            console.log(data)
-
             const parsedData = JSON.parse(data)
             parsedData.slice(oldNote)
             const stringifiedData = JSON.stringify(parsedData, null, 4)
@@ -77,6 +70,11 @@ app.delete('/api/notes', (req, res) => {
       res.json('Error in deleting note')
     }
 })
+
+// return index.html 
+app.get('*', (req,res) => {
+    res.sendFile(path.join(__dirname, './public/index.html'))
+}) 
 
 app.listen(PORT, () => {
     console.log(`Example app listening at http://localhost:${PORT}`);
